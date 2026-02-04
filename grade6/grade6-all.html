@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Grade 6 – Lessons & Tests</title>
+  <style>
+    body { font-family: Arial; background:#f4f7ff; padding:20px; text-align:center; }
+    h1,h2,h3 { color:#333; }
+    .problem { margin:8px; font-size:18px; }
+    input { width:100px; padding:5px; font-size:16px; }
+    button { margin:20px; padding:10px 18px; font-size:16px; cursor:pointer; }
+    #score { margin-top:15px; font-size:18px; font-weight:bold; }
+  </style>
+</head>
+<body>
+
+<h1>Grade 6 – Lessons & Tests</h1>
+<div id="content"></div>
+<button onclick="checkAll()">Check All Answers</button>
+<p id="score"></p>
+
+<script>
+// ---------------- Random Helpers ----------------
+function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+
+// Random addition/subtraction
+function genAddSub(count,maxVal){
+  const arr=[];
+  for(let i=0;i<count;i++){
+    if(Math.random()<0.5){
+      const a=rand(0,maxVal), b=rand(0,maxVal-a);
+      arr.push({q:`${a} + ${b}`,a:a+b});
+    } else {
+      const a=rand(0,maxVal), b=rand(0,a);
+      arr.push({q:`${a} - ${b}`,a:a-b});
+    }
+  }
+  return arr;
+}
+
+// Random multiplication/division
+function genMulDiv(count){
+  const arr=[];
+  for(let i=0;i<count;i++){
+    if(Math.random()<0.5){
+      const a=rand(10,99), b=rand(10,99);
+      arr.push({q:`${a} × ${b}`,a:a*b});
+    } else {
+      const b=rand(2,12);
+      const a=b*rand(10,99);
+      arr.push({q:`${a} ÷ ${b}`,a:a/b});
+    }
+  }
+  return arr;
+}
+
+// Simple algebra x + a = b
+function genAlgebraSimple(count){
+  const arr=[];
+  for(let i=0;i<count;i++){
+    const x=rand(1,50), a=rand(1,50);
+    arr.push({q:`x + ${a} = ${x+a}`,a:x});
+  }
+  return arr;
+}
+
+// Harder algebra: 2x + a = b
+function genAlgebraHard(count){
+  const arr=[];
+  for(let i=0;i<count;i++){
+    const x=rand(1,20), coef=rand(2,10), a=rand(0,50);
+    const b=coef*x + a;
+    arr.push({q:`${coef}x + ${a} = ${b}`,a:x});
+  }
+  return arr;
+}
+
+// Mixed all operations including algebra
+function genMixedHard(count){
+  const arr=[];
+  for(let i=0;i<count;i++){
+    const r=Math.random();
+    if(r<0.25){arr.push(...genAddSub(1,500));}
+    else if(r<0.5){arr.push(...genMulDiv(1));}
+    else if(r<0.75){arr.push(...genAlgebraSimple(1));}
+    else {arr.push(...genAlgebraHard(1));}
+  }
+  return arr;
+}
+
+// Render problems
+function render(containerId, arr, prefix){
+  const container=document.getElementById(containerId);
+  arr.forEach((p,i)=>{
+    container.innerHTML+=`<div class="problem">${i+1}. ${p.q} = <input type="number" id="${prefix}${i}"></div>`;
+  });
+}
+
+// ---------------- Lessons ----------------
+const lessons=[
+  {title:"# Lesson 1: Addition/Subtraction ≤500", problems:genAddSub(10,500)},
+  {title:"# Lesson 2: Multiplication/Division 2-digit", problems:genMulDiv(10)},
+  {title:"# Lesson 3: Mixed operations", problems:genMixedHard(10)},
+  {title:"# Lesson 4: Algebra x + a = b", problems:genAlgebraSimple(10)},
+  {title:"# Lesson 5: Algebra 2x + a = b", problems:genAlgebraHard(10)},
+  {title:"# Lesson 6: Mixed + Algebra", problems:genMixedHard(10)},
+  {title:"# Lesson 7: Review", problems:genMixedHard(10)},
+  {title:"# Lesson 8: Challenge Problems", problems:genMixedHard(10)}
+];
+
+// ---------------- Tests ----------------
+const tests=[
+  {title:"# Test 1", problems:genMixedHard(20)},
+  {title:"# Test 2", problems:genMixedHard(20)},
+  {title:"# Test 3", problems:genMixedHard(20)},
+  {title:"# Test 4", problems:genMixedHard(20)},
+  {title:"# Test 5", problems:genMixedHard(20)}
+];
+
+// ---------------- Render ----------------
+const container=document.getElementById("content");
+lessons.forEach((lesson,li)=>{container.innerHTML+=`<h3>${lesson.title}</h3>`; render("content",lesson.problems,`l${li}q`);});
+tests.forEach((test,ti)=>{container.innerHTML+=`<h3>${test.title}</h3>`; render("content",test.problems,`t${ti}q`);});
+
+// ---------------- Check ----------------
+function checkAll(){
+  let correct=0, total=0;
+  lessons.forEach((lesson,li)=>{lesson.problems.forEach((p,pi)=>{const user=document.getElementById(`l${li}q${pi}`).value; if(parseInt(user)===p.a) correct++; total++;});});
+  tests.forEach((test,ti)=>{test.problems.forEach((p,pi)=>{const user=document.getElementById(`t${ti}q${pi}`).value; if(parseInt(user)===p.a) correct++; total++;});});
+  document.getElementById("score").textContent=`Score: ${correct} / ${total}`;
+}
+</script>
+
+</body>
+</html>

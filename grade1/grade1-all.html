@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Grade 1 – Lessons & Tests</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7ff;
+      text-align: center;
+      padding: 20px;
+    }
+    h1, h2, h3 {
+      color: #333;
+    }
+    .problem {
+      margin: 8px;
+      font-size: 18px;
+    }
+    input {
+      width: 60px;
+      padding: 5px;
+      font-size: 16px;
+    }
+    button {
+      margin: 20px;
+      padding: 10px 18px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #score {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Grade 1 – Lessons & Tests</h1>
+
+<div id="content"></div>
+<button onclick="checkAll()">Check All Answers</button>
+<p id="score"></p>
+
+<script>
+// ---------------- Random Helpers ----------------
+function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+
+// Generate random addition problems
+function genAdd(count,maxSum){
+  const arr=[];
+  for(let i=0;i<count;i++){
+    const a=rand(0,maxSum), b=rand(0,maxSum-a);
+    arr.push({q:`${a} + ${b}`,a:a+b});
+  }
+  return arr;
+}
+
+// Generate random subtraction problems
+function genSub(count,maxVal){
+  const arr=[];
+  for(let i=0;i<count;i++){
+    const a=rand(0,maxVal), b=rand(0,a);
+    arr.push({q:`${a} - ${b}`,a:a-b});
+  }
+  return arr;
+}
+
+// Generate mixed +/-
+function genMixed(count,maxVal){
+  const arr=[];
+  for(let i=0;i<count;i++){
+    if(Math.random()<0.5){arr.push(...genAdd(1,maxVal));}
+    else{arr.push(...genSub(1,maxVal));}
+  }
+  return arr;
+}
+
+// Render problems
+function render(containerId, arr, prefix){
+  const container=document.getElementById(containerId);
+  arr.forEach((p,i)=>{
+    container.innerHTML+=`
+      <div class="problem">
+        ${i+1}. ${p.q} = <input type="number" id="${prefix}${i}">
+      </div>
+    `;
+  });
+}
+
+// ---------------- Lessons Data ----------------
+const lessons = [
+  {title:"# Lesson 1: Addition ≤10", problems:genAdd(10,10)},
+  {title:"# Lesson 2: Addition ≤10", problems:genAdd(10,10)},
+  {title:"# Lesson 3: Subtraction ≤10", problems:genSub(10,10)},
+  {title:"# Lesson 4: Addition ≤20", problems:genAdd(10,20)},
+  {title:"# Lesson 5: Subtraction ≤20", problems:genSub(10,20)},
+  {title:"# Lesson 6: Mixed ≤10", problems:genMixed(10,10)},
+  {title:"# Lesson 7: Mixed ≤10", problems:genMixed(10,10)},
+  {title:"# Lesson 8: Review", problems:genMixed(10,10)}
+];
+
+// ---------------- Tests Data ----------------
+const tests = [
+  {title:"# Test 1", problems:genMixed(20,10)},
+  {title:"# Test 2", problems:genMixed(20,10)},
+  {title:"# Test 3", problems:genMixed(20,10)},
+  {title:"# Test 4", problems:genMixed(20,10)},
+  {title:"# Test 5", problems:genMixed(20,10)}
+];
+
+// ---------------- Render Lessons ----------------
+const container=document.getElementById("content");
+lessons.forEach((lesson,li)=>{
+  container.innerHTML+=`<h3>${lesson.title}</h3>`;
+  render("content",lesson.problems,`l${li}q`);
+});
+
+// ---------------- Render Tests ----------------
+tests.forEach((test,ti)=>{
+  container.innerHTML+=`<h3>${test.title}</h3>`;
+  render("content",test.problems,`t${ti}q`);
+});
+
+// ---------------- Check All Answers ----------------
+function checkAll(){
+  let correct=0, total=0;
+  // Lessons
+  lessons.forEach((lesson,li)=>{
+    lesson.problems.forEach((p,pi)=>{
+      const user=document.getElementById(`l${li}q${pi}`).value;
+      if(parseInt(user)===p.a) correct++;
+      total++;
+    });
+  });
+  // Tests
+  tests.forEach((test,ti)=>{
+    test.problems.forEach((p,pi)=>{
+      const user=document.getElementById(`t${ti}q${pi}`).value;
+      if(parseInt(user)===p.a) correct++;
+      total++;
+    });
+  });
+  document.getElementById("score").textContent=`Score: ${correct} / ${total}`;
+}
+</script>
+
+</body>
+</html>
